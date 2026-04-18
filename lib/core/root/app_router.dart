@@ -5,6 +5,7 @@ import '../../features/news/ui/screens/news_screen.dart';
 import '../../features/notifications/ui/screens/notifications_screen.dart';
 import '../../features/profile/ui/screens/profile_screen.dart';
 import '../localization/app_localizations.dart';
+import 'custom_bottom_navigation.dart';
 
 /// App Router
 ///
@@ -30,7 +31,41 @@ class AppRouter {
     ];
   }
 
-  /// Get bottom navigation bar items with proper localization
+  /// Get bottom navigation items for the custom navigation bar
+  static List<NavigationItem> getNavigationItems(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
+    return [
+      NavigationItem(
+        icon: Icons.search_outlined,
+        activeIcon: Icons.search,
+        label: localizations.explore,
+      ),
+      NavigationItem(
+        icon: Icons.article_outlined,
+        activeIcon: Icons.article,
+        label: localizations.news,
+      ),
+      NavigationItem(
+        icon: Icons.person_add_outlined,
+        activeIcon: Icons.person_add,
+        label: localizations.followings,
+      ),
+      NavigationItem(
+        icon: Icons.notifications_none,
+        activeIcon: Icons.notifications,
+        label: localizations.notifications,
+      ),
+      NavigationItem(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        label: localizations.profile,
+      ),
+    ];
+  }
+
+  /// Get bottom navigation bar items (deprecated - use getNavigationItems)
+  @Deprecated('Use getNavigationItems instead')
   static List<BottomNavigationBarItem> getBottomNavigationBarItems(
     BuildContext context,
   ) {
@@ -42,11 +77,6 @@ class AppRouter {
         activeIcon: const Icon(Icons.search),
         label: localizations.explore,
       ),
-      // BottomNavigationBarItem(
-      //   icon: const Icon(Icons.business_center_outlined),
-      //   activeIcon: const Icon(Icons.business_center),
-      //   label: 'Startup', // TODO: Add to localizations
-      // ),
       BottomNavigationBarItem(
         icon: const Icon(Icons.article_outlined),
         activeIcon: const Icon(Icons.article),

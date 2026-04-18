@@ -4,7 +4,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../data/models/startup.dart';
 
-class SearchBarWidget extends StatelessWidget {
+class SearchBarWidget extends StatefulWidget {
   final TextEditingController controller;
   final Function(String) onChanged;
   final VoidCallback? onClear;
@@ -17,48 +17,86 @@ class SearchBarWidget extends StatelessWidget {
   });
 
   @override
+  State<SearchBarWidget> createState() => _SearchBarWidgetState();
+}
+
+class _SearchBarWidgetState extends State<SearchBarWidget> {
+  late final _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _listener = () => setState(() {});
+    widget.controller.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_listener);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final localizations = AppLocalizations.of(context)!;
+    final hasText = widget.controller.text.isNotEmpty;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: colors.inputBackground,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: colors.inputBorder, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: colors.primary.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TextField(
-        controller: controller,
-        onChanged: onChanged,
+        controller: widget.controller,
+        onChanged: widget.onChanged,
         textDirection: TextDirection.rtl,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: localizations.searchHint,
-          hintStyle: TextStyle(color: colors.textHint),
-          prefixIcon: Icon(
-            Icons.search,
-            color: colors.textSecondary,
-            size: 24.sp,
+          hintStyle: TextStyle(
+            color: colors.textHint,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
           ),
-          suffixIcon: controller.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: colors.textSecondary,
-                    size: 20.sp,
-                  ),
-                  onPressed: () {
-                    controller.clear();
-                    onClear?.call();
+          prefixIcon: Container(
+            padding: EdgeInsets.all(12.w),
+            child: Icon(Icons.search, color: colors.primary, size: 20.w),
+          ),
+          suffixIcon: hasText
+              ? GestureDetector(
+                  onTap: () {
+                    widget.controller.clear();
+                    widget.onClear?.call();
                   },
+                  child: Container(
+                    padding: EdgeInsets.all(12.w),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: colors.textSecondary,
+                      size: 20.w,
+                    ),
+                  ),
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 14.w,
-            vertical: 14.h,
-          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 14.h),
         ),
-        style: TextStyle(color: colors.textPrimary, fontSize: 14.sp),
+        style: TextStyle(
+          color: colors.textPrimary,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
+        cursorColor: colors.primary,
       ),
     );
   }

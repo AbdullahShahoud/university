@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'colors.dart';
+import 'theme_extensions.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
@@ -8,6 +9,7 @@ class AppTheme {
     fontFamily: 'Inter',
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
+    extensions: [ColorExtension.light],
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.background,
       elevation: 0,
@@ -102,6 +104,7 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: const Color(0xFF0D141B),
+    extensions: [ColorExtension.dark],
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFF0D141B),
       elevation: 0,

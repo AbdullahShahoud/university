@@ -732,24 +732,29 @@ class NewsDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: AppBar(
-        backgroundColor: colors.background,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          // child: Padding(
-          //   padding: EdgeInsets.all(12.w),
-          //   child: Icon(Icons.arrow_back, color: colors.textPrimary),
-          // ),
-        ),
-      ),
       body: CustomScrollView(
         slivers: [
+          // App Bar
+          SliverAppBar(
+            backgroundColor: colors.background,
+            elevation: 0,
+            leading: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                margin: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black54,
+                ),
+                child: Icon(Icons.arrow_back, color: Colors.white, size: 20.w),
+              ),
+            ),
+          ),
           // Cover Image
           SliverToBoxAdapter(
             child: Container(
               width: double.infinity,
-              height: 320.h,
+              height: 280.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage(
@@ -777,18 +782,42 @@ class NewsDetailsScreen extends StatelessWidget {
                   Text(
                     article.title ?? 'No Title',
                     style: TextStyle(
-                      fontSize: 28.sp,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'الشركة الناشئة · ${article.publishedAt ?? 'Unknown date'} · 5 دقائق قراءة',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: colors.textSecondary,
-                    ),
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: 16.w,
+                        color: colors.textSecondary,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'قراءة: 5 دقائق',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Icon(
+                        Icons.visibility,
+                        size: 16.w,
+                        color: colors.textSecondary,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '${article.views ?? 0} مشاهدة',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

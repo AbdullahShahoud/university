@@ -8,6 +8,7 @@ import '../theme/theme.dart';
 import '../di/service_locator.dart';
 import 'app_router.dart';
 import 'navigation_cubit.dart';
+import 'custom_bottom_navigation.dart';
 
 class AppRoot extends StatefulWidget {
   const AppRoot({super.key});
@@ -70,30 +71,19 @@ class MainScreen extends StatelessWidget {
     return BlocBuilder<NavigationCubit, NavigationState>(
       bloc: getIt<NavigationCubit>(),
       builder: (context, state) {
+        final navigationItems = AppRouter.getNavigationItems(context);
+
         return Scaffold(
           body: IndexedStack(
             index: state.currentIndex,
             children: AppRouter.getScreens(),
           ),
-          bottomNavigationBar: BottomNavigationBar(
+          bottomNavigationBar: CustomBottomNavigation(
             currentIndex: state.currentIndex,
+            items: navigationItems,
             onTap: (index) {
               getIt<NavigationCubit>().changeTab(index);
             },
-            items: AppRouter.getBottomNavigationBarItems(context),
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.backgroundColor,
-            selectedItemColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.selectedItemColor,
-            unselectedItemColor: Theme.of(
-              context,
-            ).bottomNavigationBarTheme.unselectedItemColor,
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            elevation: Theme.of(context).bottomNavigationBarTheme.elevation,
           ),
         );
       },
