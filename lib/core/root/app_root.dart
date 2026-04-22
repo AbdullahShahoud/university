@@ -32,31 +32,37 @@ class _AppRootState extends State<AppRoot> {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return BlocBuilder<ProfileCubit, ProfileState>(
-          bloc: getIt<ProfileCubit>(),
-          buildWhen: (previous, current) =>
-              previous.isDarkTheme != current.isDarkTheme ||
-              previous.languageCode != current.languageCode,
-          builder: (context, profileState) {
-            return MaterialApp(
-              title: 'Audience App',
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              debugShowCheckedModeBanner: false,
-              themeMode: profileState.isDarkTheme
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-              locale: Locale(profileState.languageCode),
-              supportedLocales: const [Locale('en', 'US'), Locale('ar', 'SY')],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              home: const MainScreen(),
-            );
-          },
+        return BlocProvider<ProfileCubit>.value(
+          value: getIt<ProfileCubit>(),
+          child: BlocBuilder<ProfileCubit, ProfileState>(
+            bloc: getIt<ProfileCubit>(),
+            buildWhen: (previous, current) =>
+                previous.isDarkTheme != current.isDarkTheme ||
+                previous.languageCode != current.languageCode,
+            builder: (context, profileState) {
+              return MaterialApp(
+                title: 'Audience App',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                debugShowCheckedModeBanner: false,
+                themeMode: profileState.isDarkTheme
+                    ? ThemeMode.dark
+                    : ThemeMode.light,
+                locale: Locale(profileState.languageCode),
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('ar', 'SY'),
+                ],
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                home: const MainScreen(),
+              );
+            },
+          ),
         );
       },
     );

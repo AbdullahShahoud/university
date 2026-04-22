@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../widgets/animations/page_transitions.dart';
 import 'colors.dart';
 import 'theme_extensions.dart';
 
@@ -96,6 +97,15 @@ class AppTheme {
         fontFamily: 'Inter',
       ),
     ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: AppPageTransition(),
+        TargetPlatform.iOS: AppPageTransition(),
+        TargetPlatform.linux: AppPageTransition(),
+        TargetPlatform.macOS: AppPageTransition(),
+        TargetPlatform.windows: AppPageTransition(),
+      },
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -190,6 +200,15 @@ class AppTheme {
         fontWeight: FontWeight.w500,
         fontFamily: 'Inter',
       ),
+    ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: AppPageTransition(),
+        TargetPlatform.iOS: AppPageTransition(),
+        TargetPlatform.linux: AppPageTransition(),
+        TargetPlatform.macOS: AppPageTransition(),
+        TargetPlatform.windows: AppPageTransition(),
+      },
     ),
   );
 }
