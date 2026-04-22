@@ -30,16 +30,42 @@ class _CompanyDetailsView extends StatefulWidget {
 class _CompanyDetailsViewState extends State<_CompanyDetailsView>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _contentAnimationController;
+  late Animation<double> _contentFadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+
+    // Initialize content animation controller
+    _contentAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _contentFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _contentAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _contentAnimationController.forward();
+
+    // Listen to tab changes to reset animation
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        _contentAnimationController.reset();
+        _contentAnimationController.forward();
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _contentAnimationController.dispose();
     super.dispose();
   }
 
@@ -102,6 +128,7 @@ class _CompanyDetailsViewState extends State<_CompanyDetailsView>
                 expandedHeight: 200.h,
                 floating: false,
                 pinned: true,
+                automaticallyImplyLeading: false,
                 backgroundColor: colors.background,
                 elevation: 0,
                 actions: [
@@ -306,13 +333,25 @@ class _CompanyDetailsViewState extends State<_CompanyDetailsView>
                   controller: _tabController,
                   children: [
                     // About Tab
-                    _AboutTabContent(startup: startup),
+                    FadeTransition(
+                      opacity: _contentFadeAnimation,
+                      child: _AboutTabContent(startup: startup),
+                    ),
                     // Features Tab
-                    _FeaturesTabContent(features: startup.features),
+                    FadeTransition(
+                      opacity: _contentFadeAnimation,
+                      child: _FeaturesTabContent(features: startup.features),
+                    ),
                     // News Tab
-                    _NewsTabContent(news: startup.news),
+                    FadeTransition(
+                      opacity: _contentFadeAnimation,
+                      child: _NewsTabContent(news: startup.news),
+                    ),
                     // Contact Tab
-                    _ContactTabContent(contacts: startup.contacts),
+                    FadeTransition(
+                      opacity: _contentFadeAnimation,
+                      child: _ContactTabContent(contacts: startup.contacts),
+                    ),
                   ],
                 ),
               ),
@@ -340,38 +379,59 @@ class _AboutTabContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // About Description
-          Text(
-            startup.about,
-            style: TextStyle(
-              fontSize: 14.sp,
-              height: 1.6,
-              color: colors.textPrimary,
+          FadeTransition(
+            opacity: AlwaysStoppedAnimation(1.0),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, (1 - value) * 20),
+                    child: child,
+                  ),
+                );
+              },
+              child: Text(
+                startup.about,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.6,
+                  color: colors.textPrimary,
+                ),
+              ),
             ),
           ),
           SizedBox(height: 24.h),
-          // Company Info Grid
-          _CompanyInfoItem(
+          // Company Info Grid animated
+          _AnimatedCompanyInfoItem(
             label: 'الموقع الإلكتروني',
             value: startup.website,
             colors: colors,
+            delay: 0,
           ),
           SizedBox(height: 12.h),
-          _CompanyInfoItem(
+          _AnimatedCompanyInfoItem(
             label: 'الموقع',
             value: startup.location,
             colors: colors,
+            delay: 1,
           ),
           SizedBox(height: 12.h),
-          _CompanyInfoItem(
+          _AnimatedCompanyInfoItem(
             label: 'البريد الإلكتروني',
             value: startup.email,
             colors: colors,
+            delay: 2,
           ),
           SizedBox(height: 12.h),
-          _CompanyInfoItem(
+          _AnimatedCompanyInfoItem(
             label: 'الهاتف',
             value: startup.phone,
             colors: colors,
+            delay: 3,
           ),
           SizedBox(height: 24.h),
         ],
@@ -394,30 +454,44 @@ class _FeaturesTabContent extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       itemCount: features.length,
       itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              border: Border.all(color: colors.border),
-              borderRadius: BorderRadius.circular(8.r),
-              color: colors.cardBackground,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.check_circle, color: colors.success, size: 20.w),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(
-                    features[index],
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: colors.textPrimary,
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: Duration(milliseconds: 300 + (index * 100)),
+          curve: Curves.easeInOut,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, (1 - value) * 20),
+                child: child,
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                border: Border.all(color: colors.border),
+                borderRadius: BorderRadius.circular(8.r),
+                color: colors.cardBackground,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.check_circle, color: colors.success, size: 20.w),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      features[index],
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: colors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -441,67 +515,81 @@ class _NewsTabContent extends StatelessWidget {
       itemCount: news.length ?? 0,
       itemBuilder: (context, index) {
         final article = news[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NewsDetailsScreen(article: article),
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: Duration(milliseconds: 300 + (index * 100)),
+          curve: Curves.easeInOut,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, (1 - value) * 20),
+                child: child,
               ),
             );
           },
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: colors.border),
-                borderRadius: BorderRadius.circular(8.r),
-                color: colors.cardBackground,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (article.imageUrl != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(7.r),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewsDetailsScreen(article: article),
+                ),
+              );
+            },
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.border),
+                  borderRadius: BorderRadius.circular(8.r),
+                  color: colors.cardBackground,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (article.imageUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(7.r),
+                        ),
+                        child: Image.asset(
+                          article.imageUrl,
+                          height: 150.h,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(color: colors.inputBackground),
+                        ),
                       ),
-                      child: Image.asset(
-                        article.imageUrl,
-                        height: 150.h,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(color: colors.inputBackground),
+                    Padding(
+                      padding: EdgeInsets.all(12.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            article.title ?? 'No Title',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: colors.textPrimary,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            article.publishedAt ?? 'Unknown date',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  Padding(
-                    padding: EdgeInsets.all(12.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          article.title ?? 'No Title',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: colors.textPrimary,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          article.publishedAt ?? 'Unknown date',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -671,50 +759,66 @@ class _ContactTabContentState extends State<_ContactTabContent> {
   }
 }
 
-// Helper Widget for Company Info
-class _CompanyInfoItem extends StatelessWidget {
+// Animated Helper Widget for Company Info
+class _AnimatedCompanyInfoItem extends StatelessWidget {
   final String label;
   final String value;
   final dynamic colors;
+  final int delay;
 
-  const _CompanyInfoItem({
+  const _AnimatedCompanyInfoItem({
     required this.label,
     required this.value,
     required this.colors,
+    required this.delay,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: colors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w500,
-              color: colors.textSecondary,
-            ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 400 + (delay * 100)),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, (1 - value) * 20),
+            child: child,
           ),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: colors.border)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
               style: TextStyle(
-                fontSize: 13.sp,
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w600,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+                color: colors.textSecondary,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

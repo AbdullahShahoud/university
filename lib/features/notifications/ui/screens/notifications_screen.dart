@@ -111,7 +111,21 @@ class NotificationsView extends StatelessWidget {
         itemCount: state.notifications.length,
         itemBuilder: (context, index) {
           final notification = state.notifications[index];
-          return _buildNotificationItem(context, notification, colors);
+          return TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: Duration(milliseconds: 300 + (index * 100)),
+            curve: Curves.easeInOut,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset((1 - value) * -50, 0),
+                  child: child,
+                ),
+              );
+            },
+            child: _buildNotificationItem(context, notification, colors),
+          );
         },
       ),
     );

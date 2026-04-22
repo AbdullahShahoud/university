@@ -89,109 +89,144 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ? state.searchResults
               : state.latestStartups;
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SearchBarWidget(
-                  controller: _searchController,
-                  onChanged: (value) =>
-                      getIt<ExploreCubit>().searchStartups(value),
-                  onClear: () => getIt<ExploreCubit>().clearSearch(),
-                ),
-                SizedBox(height: 8.h),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Row(
-                    children: categories.map((category) {
-                      final selected =
-                          state.selectedCategory?.isEmpty != true &&
-                          state.selectedCategory == category.id;
-                      return CategoryChipWidget(
-                        label: category.displayName,
-                        isSelected: selected,
-                        onTap: () =>
-                            getIt<ExploreCubit>().filterByCategory(category.id),
-                      );
-                    }).toList(),
+          return FadeTransition(
+            opacity: AlwaysStoppedAnimation(1.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SearchBarWidget(
+                    controller: _searchController,
+                    onChanged: (value) =>
+                        getIt<ExploreCubit>().searchStartups(value),
+                    onClear: () => getIt<ExploreCubit>().clearSearch(),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
-                  child: Text(
-                    localizations.featuredCompanies,
-                    style: TextStyle(
-                      color: colors.textPrimary,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 240.h,
-                  child: ListView.builder(
+                  SizedBox(height: 8.h),
+                  SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    itemCount: state.featuredStartups.length,
-                    itemBuilder: (context, index) {
-                      final item = state.featuredStartups[index];
-                      return StartupCardWidget(
-                        startup: item,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CompanyDetailsScreen(startupId: item.id),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
-                  child: Text(
-                    localizations.latest,
-                    style: TextStyle(
-                      color: colors.textPrimary,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      children: categories.map((category) {
+                        final selected =
+                            state.selectedCategory?.isEmpty != true &&
+                            state.selectedCategory == category.id;
+                        return CategoryChipWidget(
+                          label: category.displayName,
+                          isSelected: selected,
+                          onTap: () => getIt<ExploreCubit>().filterByCategory(
+                            category.id,
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: startups.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10.w,
-                      mainAxisSpacing: 10.h,
-                      childAspectRatio: 0.7,
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                    child: Text(
+                      localizations.featuredCompanies,
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      final item = startups[index];
-                      return StartupGridItemWidget(
-                        startup: item,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CompanyDetailsScreen(startupId: item.id),
-                            ),
-                          );
-                        },
-                      );
-                    },
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 240.h,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      itemCount: state.featuredStartups.length,
+                      itemBuilder: (context, index) {
+                        final item = state.featuredStartups[index];
+                        return TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: 1),
+                          duration: Duration(milliseconds: 300 + (index * 100)),
+                          curve: Curves.easeInOut,
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.translate(
+                                offset: Offset((1 - value) * 50, 0),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: StartupCardWidget(
+                            startup: item,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CompanyDetailsScreen(startupId: item.id),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                    child: Text(
+                      localizations.latest,
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: startups.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
+                        childAspectRatio: 0.7,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = startups[index];
+                        return TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: 1),
+                          duration: Duration(milliseconds: 400 + (index * 80)),
+                          curve: Curves.easeInOut,
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.scale(
+                                scale: 0.8 + (value * 0.2),
+                                child: Transform.translate(
+                                  offset: Offset(0, (1 - value) * 30),
+                                  child: child,
+                                ),
+                              ),
+                            );
+                          },
+                          child: StartupGridItemWidget(
+                            startup: item,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CompanyDetailsScreen(startupId: item.id),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

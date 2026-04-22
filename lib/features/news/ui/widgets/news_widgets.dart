@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../data/models/news_article.dart';
 
 // News List Card Widget
@@ -12,14 +13,16 @@ class NewsListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.inputBorder),
+          border: Border.all(color: colors.inputBorder),
           borderRadius: BorderRadius.circular(8.r),
-          color: AppColors.cardBackground,
+          color: colors.cardBackground,
         ),
         child: Row(
           children: [
@@ -35,8 +38,8 @@ class NewsListCard extends StatelessWidget {
                 height: 120.h,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.placeholder,
-                  child: const Icon(Icons.error),
+                  color: colors.surface,
+                  child: Icon(Icons.error, color: colors.error),
                 ),
               ),
             ),
@@ -55,7 +58,7 @@ class NewsListCard extends StatelessWidget {
                         vertical: 4.h,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: colors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
@@ -63,7 +66,7 @@ class NewsListCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: colors.primary,
                         ),
                       ),
                     ),
@@ -74,7 +77,7 @@ class NewsListCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: colors.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -86,7 +89,7 @@ class NewsListCard extends StatelessWidget {
                         Icon(
                           Icons.business,
                           size: 14.w,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                         ),
                         SizedBox(width: 4.w),
                         Expanded(
@@ -94,7 +97,7 @@ class NewsListCard extends StatelessWidget {
                             article.sourceCompany,
                             style: TextStyle(
                               fontSize: 11.sp,
-                              color: AppColors.textSecondary,
+                              color: colors.textSecondary,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -103,14 +106,14 @@ class NewsListCard extends StatelessWidget {
                         Icon(
                           Icons.visibility,
                           size: 14.w,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                         ),
                         SizedBox(width: 4.w),
                         Text(
                           '${article.views}',
                           style: TextStyle(
                             fontSize: 11.sp,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ],
@@ -140,6 +143,8 @@ class NewsDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Stack(
       children: [
         // Image
@@ -149,8 +154,8 @@ class NewsDetailHeader extends StatelessWidget {
           width: double.infinity,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
-            color: AppColors.placeholder,
-            child: const Icon(Icons.error),
+            color: colors.surface,
+            child: Icon(Icons.error, color: colors.error),
           ),
         ),
         // Gradient

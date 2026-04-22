@@ -97,7 +97,21 @@ class _FavoritesViewState extends State<FavoritesView> {
                     itemCount: state.favorites.length,
                     itemBuilder: (context, index) {
                       final favorite = state.favorites[index];
-                      return _buildFavoriteCard(context, favorite);
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: 1),
+                        duration: Duration(milliseconds: 300 + (index * 100)),
+                        curve: Curves.easeInOut,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, (1 - value) * 30),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: _buildFavoriteCard(context, favorite),
+                      );
                     },
                   ),
                 ),

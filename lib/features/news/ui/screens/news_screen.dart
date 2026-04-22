@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../news/logic/cubit/news_cubit.dart';
 import '../widgets/news_widgets.dart';
@@ -54,6 +54,8 @@ class _NewsViewState extends State<NewsView> {
     return BlocBuilder<NewsCubit, NewsState>(
       bloc: getIt<NewsCubit>(),
       builder: (context, state) {
+        final colors = context.colors;
+
         return Scaffold(
           appBar: AppBar(title: Text(localizations.news), elevation: 0),
           body: state.isLoading && state.articles.isEmpty
@@ -66,14 +68,14 @@ class _NewsViewState extends State<NewsView> {
                       Icon(
                         Icons.newspaper,
                         size: 64.w,
-                        color: AppColors.textSecondary,
+                        color: colors.textSecondary,
                       ),
                       SizedBox(height: 16.h),
                       Text(
                         localizations.noData,
                         style: TextStyle(
                           fontSize: 16.sp,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -85,7 +87,7 @@ class _NewsViewState extends State<NewsView> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12.sp,
-                                color: AppColors.error,
+                                color: colors.error,
                               ),
                             ),
                             SizedBox(height: 16.h),
@@ -118,11 +120,25 @@ class _NewsViewState extends State<NewsView> {
                       }
 
                       final article = state.articles[index];
-                      return NewsListCard(
-                        article: article,
-                        onTap: () {
-                          _navigateToDetail(context, article.id);
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: 1),
+                        duration: Duration(milliseconds: 300 + (index * 100)),
+                        curve: Curves.easeInOut,
+                        builder: (context, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, (1 - value) * 30),
+                              child: child,
+                            ),
+                          );
                         },
+                        child: NewsListCard(
+                          article: article,
+                          onTap: () {
+                            _navigateToDetail(context, article.id);
+                          },
+                        ),
                       );
                     },
                   ),
@@ -173,6 +189,8 @@ class NewsDetailView extends StatelessWidget {
     return BlocBuilder<NewsCubit, NewsState>(
       bloc: getIt<NewsCubit>(),
       builder: (context, state) {
+        final colors = context.colors;
+
         if (state.isLoadingDetail && state.selectedArticle == null) {
           return Scaffold(
             appBar: AppBar(
@@ -206,7 +224,7 @@ class NewsDetailView extends StatelessWidget {
                   Text(
                     state.errorMessage!,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14.sp, color: AppColors.error),
+                    style: TextStyle(fontSize: 14.sp, color: colors.error),
                   ),
                   SizedBox(height: 16.h),
                   ElevatedButton(
@@ -224,27 +242,24 @@ class NewsDetailView extends StatelessWidget {
         final article = state.selectedArticle!;
 
         return Scaffold(
+          backgroundColor: colors.background,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
                 expandedHeight: 250.h,
                 floating: false,
                 pinned: true,
-                leading: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    margin: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(50.r),
-                    ),
-                    child: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                ),
+                backgroundColor: colors.background,
+                foregroundColor: colors.textPrimary,
+                automaticallyImplyLeading: false, // Remove default back button
                 flexibleSpace: FlexibleSpaceBar(
-                  background: NewsDetailHeader(
-                    article: article,
-                    onBackPressed: () => Navigator.pop(context),
+                  background: SafeArea(
+                    top: true,
+                    bottom: false,
+                    child: NewsDetailHeader(
+                      article: article,
+                      onBackPressed: () => Navigator.pop(context),
+                    ),
                   ),
                 ),
               ),
@@ -263,7 +278,7 @@ class NewsDetailView extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                           height: 1.5,
                         ),
                       ),
@@ -273,7 +288,7 @@ class NewsDetailView extends StatelessWidget {
                         article.content,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: AppColors.textSecondary,
+                          color: colors.textSecondary,
                           height: 1.6,
                         ),
                       ),
@@ -285,7 +300,7 @@ class NewsDetailView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 12.h),
