@@ -14,7 +14,6 @@
 /// - Micro-interactions (shake, pulse, toggles)
 
 export 'animated_switcher_wrapper.dart';
-export 'bottom_sheet.dart';
 export 'card_lift.dart';
 export 'loading_skeletons.dart';
 export 'page_transitions.dart';
