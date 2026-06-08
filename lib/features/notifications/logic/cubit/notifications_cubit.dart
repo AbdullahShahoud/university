@@ -30,8 +30,8 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       success: (notifications) {
         emit(state.copyWith(notifications: notifications, isLoading: false));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isLoading: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isLoading: false));
       },
     );
   }
@@ -46,8 +46,8 @@ class NotificationsCubit extends Cubit<NotificationsState> {
             .toList();
         emit(state.copyWith(notifications: updated));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message));
       },
     );
   }

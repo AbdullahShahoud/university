@@ -1,0 +1,119 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/auth/data/repo/auth_repository.dart';
+
+/// Manages JWT token storage, retrieval, and automatic refresh
+class TokenManager {
+  final SharedPreferences prefs;
+  final AuthRepository authRepository;
+
+  static const String _tokenKey = 'auth_token';
+  static const String _refreshTokenKey = 'refresh_token';
+
+  TokenManager({
+    required this.prefs,
+    required this.authRepository,
+  });
+
+  // ============ TOKEN STORAGE ============
+
+  /// Save JWT and refresh token
+  Future<void> saveTokens({
+    required String token,
+    required String refreshToken,
+  }) async {
+    await prefs.setString(_tokenKey, token);
+    await prefs.setString(_refreshTokenKey, refreshToken);
+  }
+
+  /// Clear all tokens
+  Future<void> clearTokens() async {
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_refreshTokenKey);
+  }
+
+  // ============ TOKEN RETRIEVAL ============
+
+  /// Get current JWT token
+  String? getToken() {
+    return prefs.getString(_tokenKey);
+  }
+
+  /// Get refresh token
+  String? getRefreshToken() {
+    return prefs.getString(_refreshTokenKey);
+  }
+
+  /// Check if user is authenticated
+  bool isAuthenticated() {
+    return getToken() != null;
+  }
+
+  // ============ TOKEN REFRESH ============
+
+  /// Refresh JWT token using refresh token
+  /// Returns new token pair or null if refresh fails
+  Future<({String token, String refreshToken})?> refreshAccessToken() async {
+    final refreshToken = getRefreshToken();
+    if (refreshToken == null) {
+      return null; // Can't refresh without refresh token
+    }
+
+    try {
+      final result = await authRepository.refreshToken(
+        refreshToken: refreshToken,
+      );
+
+      return result.when(
+        success: (authResponse) async {
+          // Save new tokens
+          await saveTokens(
+            token: authResponse.token,
+            refreshToken: authResponse.refreshToken,
+          );
+          return (
+            token: authResponse.token,
+            refreshToken: authResponse.refreshToken
+          );
+        },
+        error: (_) {
+          // Refresh failed, clear tokens
+          clearTokens();
+          return null;
+        },
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ============ TOKEN VALIDATION ============
+
+  /// Check if token is likely expired (basic check)
+  /// Returns true if token is missing or appears expired
+  bool isTokenExpired() {
+    final token = getToken();
+    if (token == null) return true;
+
+    // Simple check: if we can decode and verify expiration
+    // For now, just check if token exists
+    // Full JWT validation should be done server-side
+    return false;
+  }
+
+  /// Ensure valid token before API call
+  /// Automatically refreshes if needed
+  Future<String?> getValidToken() async {
+    final token = getToken();
+    if (token == null) {
+      return null;
+    }
+
+    // If token appears expired, try to refresh
+    if (isTokenExpired()) {
+      final refreshed = await refreshAccessToken();
+      return refreshed?.token;
+    }
+
+    return token;
+  }
+}

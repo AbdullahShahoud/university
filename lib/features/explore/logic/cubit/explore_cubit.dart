@@ -50,18 +50,18 @@ class ExploreCubit extends Cubit<ExploreState> {
                   ),
                 );
               },
-              error: (error) {
-                emit(state.copyWith(errorMessage: error, isLoading: false));
+              failure: (error) {
+                emit(state.copyWith(errorMessage: error.message, isLoading: false));
               },
             );
           },
-          error: (error) {
-            emit(state.copyWith(errorMessage: error, isLoading: false));
+          failure: (error) {
+            emit(state.copyWith(errorMessage: error.message, isLoading: false));
           },
         );
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isLoading: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isLoading: false));
       },
     );
   }
@@ -88,8 +88,8 @@ class ExploreCubit extends Cubit<ExploreState> {
       success: (startups) {
         emit(state.copyWith(searchResults: startups, isSearching: false));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isSearching: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isSearching: false));
       },
     );
   }
@@ -115,10 +115,10 @@ class ExploreCubit extends Cubit<ExploreState> {
           ),
         );
       },
-      error: (error) {
+      failure: (error) {
         emit(
           state.copyWith(
-            errorMessage: error,
+            errorMessage: error.message,
             isLoading: false,
             selectedCategory: categoryId,
           ),

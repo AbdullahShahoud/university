@@ -103,7 +103,7 @@ class __$$NavigationStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$NavigationStateImpl implements _NavigationState {
-  const _$NavigationStateImpl({this.currentIndex = 0});
+  const _$NavigationStateImpl({this.currentIndex = 2});
 
   @override
   @JsonKey()

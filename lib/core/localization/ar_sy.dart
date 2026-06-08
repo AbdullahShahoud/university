@@ -51,6 +51,8 @@ class ArSy {
   static const String email = 'البريد الإلكتروني';
   static const String message = 'الرسالة';
   static const String sendMessage = 'إرسال الرسالة';
+  static const String founded = 'تاريخ التأسيس';
+  static const String phone = 'الهاتف';
 
   // News
   static const String newsTitle = 'الأخبار';

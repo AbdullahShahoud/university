@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../data/models/news_article.dart';
@@ -18,115 +19,221 @@ class NewsListCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 12.h),
+        margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
-          border: Border.all(color: colors.inputBorder),
-          borderRadius: BorderRadius.circular(8.r),
           color: colors.cardBackground,
-        ),
-        child: Row(
-          children: [
-            // Image
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8.r),
-                bottomLeft: Radius.circular(8.r),
-              ),
-              child: Image.asset(
-                article.imageUrl,
-                width: 120.w,
-                height: 120.h,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: colors.surface,
-                  child: Icon(Icons.error, color: colors.error),
-                ),
-              ),
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadowLight.withOpacity(0.14),
+              blurRadius: 22.r,
+              offset: Offset(0, 10.h),
             ),
-            SizedBox(width: 12.w),
-            // Content
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Category
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        article.category,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          color: colors.primary,
-                        ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(20.r),
+                  ),
+                  child: Image(
+                    image: _imageProvider(),
+                    height: 180.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 180.h,
+                      color: colors.surface,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.broken_image,
+                        color: colors.error,
+                        size: 28.w,
                       ),
                     ),
-                    SizedBox(height: 6.h),
-                    // Title
-                    Text(
-                      article.title,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 6.h),
-                    // Meta info
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.business,
-                          size: 14.w,
-                          color: colors.textSecondary,
-                        ),
-                        SizedBox(width: 4.w),
-                        Expanded(
-                          child: Text(
-                            article.sourceCompany,
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: colors.textSecondary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Icon(
-                          Icons.visibility,
-                          size: 14.w,
-                          color: colors.textSecondary,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '${article.views}',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: colors.textSecondary,
-                          ),
-                        ),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 180.h,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
                       ],
                     ),
-                  ],
+                  ),
                 ),
+                Positioned(
+                  left: 10.w,
+                  top: 13.h,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 7.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.primary.withOpacity(0.95),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Text(
+                      article.category,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 15.h,
+                  right: 10.w,
+                  child: Text(
+                    article.title,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.description,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: colors.textSecondary,
+                      height: 1.5,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.business_center,
+                        size: 16.w,
+                        color: colors.textSecondary,
+                      ),
+                      SizedBox(width: 6.w),
+                      Expanded(
+                        child: Text(
+                          article.sourceCompany,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: colors.textSecondary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Icon(
+                        Icons.visibility,
+                        size: 16.w,
+                        color: colors.textSecondary,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        _formatViews(article.views),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16.w,
+                        color: colors.textSecondary,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        _formatDate(article.publishedAt),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (article.tags.isNotEmpty) ...[
+                    SizedBox(height: 14.h),
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: article.tags
+                          .map(
+                            (tag) => Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 7.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.inputBackground,
+                                borderRadius: BorderRadius.circular(16.r),
+                                border: Border.all(color: colors.borderLight),
+                              ),
+                              child: Text(
+                                '#$tag',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: colors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ],
               ),
             ),
-            SizedBox(width: 8.w),
           ],
         ),
       ),
     );
+  }
+
+  ImageProvider _imageProvider() {
+    if (article.imageUrl.startsWith('http')) {
+      return NetworkImage(article.imageUrl);
+    }
+    return AssetImage(article.imageUrl);
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  String _formatViews(int views) {
+    if (views >= 1000000) {
+      return '${(views / 1000000).toStringAsFixed(1)}M';
+    } else if (views >= 1000) {
+      return '${(views / 1000).toStringAsFixed(1)}K';
+    }
+    return '$views';
   }
 }
 
@@ -369,6 +476,34 @@ class NewsTags extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+class NewsShimmerLoading extends StatelessWidget {
+  const NewsShimmerLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Shimmer.fromColors(
+      baseColor: Color.fromARGB(169, 210, 232, 255),
+      highlightColor: Color.fromARGB(255, 210, 232, 255),
+      child: ListView.builder(
+        itemCount: 5,
+        padding: EdgeInsets.all(16.w),
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 12.h),
+            height: 120.h,
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/colors.dart';
+import 'button.dart';
 
 /// Error Dialog Widget
 class ErrorDialog extends StatelessWidget {
@@ -46,12 +47,11 @@ class ErrorDialog extends StatelessWidget {
         if (onDismiss != null)
           TextButton(onPressed: onDismiss!, child: const Text('Dismiss')),
         if (showRetry)
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
               onRetry();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             child: const Text('Retry'),
           ),
       ],
@@ -167,9 +167,9 @@ class EmptyState extends StatelessWidget {
           ),
           if (onRetry != null) ...[
             SizedBox(height: 16.h),
-            ElevatedButton(
+            AppButton(
+              text: retryButtonText ?? 'Retry',
               onPressed: onRetry,
-              child: Text(retryButtonText ?? 'Retry'),
             ),
           ],
         ],
@@ -223,10 +223,10 @@ class ErrorStateWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
-            ElevatedButton(
+            AppButton(
+              text: 'Try Again',
               onPressed: onRetry,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: const Text('Try Again'),
+              backgroundColor: AppColors.error,
             ),
           ],
         ),

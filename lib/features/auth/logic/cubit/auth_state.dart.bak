@@ -1,0 +1,37 @@
+part of 'auth_cubit.dart';
+
+@freezed
+class AuthState with _$AuthState {
+  const factory AuthState.initial() = _Initial;
+
+  const factory AuthState.loading() = _Loading;
+
+  // Authentication
+  const factory AuthState.authenticated({
+    required AuthResponse auth,
+  }) = _Authenticated;
+
+  // Password Reset
+  const factory AuthState.resetCodeSent() = _ResetCodeSent;
+
+  const factory AuthState.resetCodeVerified({
+    required String resetToken,
+  }) = _ResetCodeVerified;
+
+  const factory AuthState.passwordReset() = _PasswordReset;
+
+  // Session Management
+  const factory AuthState.sessionsLoaded({
+    required List<Map<String, dynamic>> sessions,
+  }) = _SessionsLoaded;
+
+  const factory AuthState.sessionDeleted() = _SessionDeleted;
+
+  // Logout
+  const factory AuthState.loggedOut() = _LoggedOut;
+
+  // Error
+  const factory AuthState.error({
+    required String message,
+  }) = _Error;
+}

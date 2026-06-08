@@ -29,8 +29,8 @@ class StartupCubit extends Cubit<StartupState> {
       success: (startup) {
         emit(state.copyWith(startup: startup, isLoading: false));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isLoading: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isLoading: false));
       },
     );
   }

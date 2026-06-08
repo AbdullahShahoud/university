@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/widgets/background.dart';
+import '../../../../core/widgets/button.dart';
 import '../../../news/logic/cubit/news_cubit.dart';
 import '../widgets/news_widgets.dart';
 
@@ -25,6 +27,8 @@ class NewsView extends StatefulWidget {
 
 class _NewsViewState extends State<NewsView> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  int _selectedCategoryIndex = 0;
 
   @override
   void initState() {
@@ -37,6 +41,7 @@ class _NewsViewState extends State<NewsView> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -55,94 +60,223 @@ class _NewsViewState extends State<NewsView> {
       bloc: getIt<NewsCubit>(),
       builder: (context, state) {
         final colors = context.colors;
+        final categories = <String>[
+          'All',
+          ...state.articles.map((article) => article.category).toSet().toList(),
+        ];
+
+        final searchQuery = _searchController.text.trim().toLowerCase();
+        final filteredArticles = state.articles.where((article) {
+          final matchesCategory =
+              _selectedCategoryIndex == 0 ||
+              article.category == categories[_selectedCategoryIndex];
+          final matchesSearch =
+              searchQuery.isEmpty ||
+              article.title.toLowerCase().contains(searchQuery) ||
+              article.description.toLowerCase().contains(searchQuery) ||
+              article.sourceCompany.toLowerCase().contains(searchQuery);
+          return matchesCategory && matchesSearch;
+        }).toList();
 
         return Scaffold(
-          appBar: AppBar(title: Text(localizations.news), elevation: 0),
-          body: state.isLoading && state.articles.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : state.articles.isEmpty && !state.isLoading
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.newspaper,
-                        size: 64.w,
-                        color: colors.textSecondary,
+          body: SafeArea(
+            child: Background(
+              child: state.isLoading && state.articles.isEmpty
+                  ? const NewsShimmerLoading()
+                  : state.articles.isEmpty && !state.isLoading
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.newspaper,
+                            size: 64.w,
+                            color: colors.textSecondary,
+                          ),
+                          SizedBox(height: 16.h),
+                          Text(
+                            localizations.noData,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          if (state.errorMessage != null)
+                            Column(
+                              children: [
+                                Text(
+                                  state.errorMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: colors.error,
+                                  ),
+                                ),
+                                SizedBox(height: 16.h),
+                              ],
+                            ),
+                          AppButton(
+                            text: localizations.retry,
+                            onPressed: () => getIt<NewsCubit>().retry(),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        localizations.noData,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      if (state.errorMessage != null)
-                        Column(
-                          children: [
-                            Text(
-                              state.errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: colors.error,
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        getIt<NewsCubit>().loadNews();
+                      },
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverPadding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            sliver: SliverToBoxAdapter(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(height: 20.h),
+                                  Text(
+                                    localizations.news,
+                                    style: TextStyle(
+                                      fontSize: 24.sp,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 16.h),
+                                  SizedBox(
+                                    height: 48.h,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: categories.length,
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(width: 8.w),
+                                      itemBuilder: (context, index) {
+                                        final category = categories[index];
+                                        final selected =
+                                            index == _selectedCategoryIndex;
+                                        return GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedCategoryIndex = index;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 18.w,
+                                              vertical: 12.h,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: selected
+                                                  ? colors.primary
+                                                  : colors.surface,
+                                              borderRadius:
+                                                  BorderRadius.circular(24.r),
+                                              border: Border.all(
+                                                color: selected
+                                                    ? colors.primary
+                                                    : colors.borderLight,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              category,
+                                              style: TextStyle(
+                                                fontSize: 13.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: selected
+                                                    ? Colors.white
+                                                    : colors.textPrimary,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 16.h),
-                          ],
-                        ),
-                      ElevatedButton(
-                        onPressed: () => getIt<NewsCubit>().retry(),
-                        child: Text(localizations.retry),
-                      ),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    getIt<NewsCubit>().loadNews();
-                  },
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.all(16.w),
-                    itemCount:
-                        state.articles.length + (state.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == state.articles.length) {
-                        return Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.h),
-                            child: CircularProgressIndicator(),
                           ),
-                        );
-                      }
+                          if (filteredArticles.isEmpty)
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                child: Center(
+                                  child: Text(
+                                    localizations.noData,
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    if (index == filteredArticles.length) {
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 24.h,
+                                        ),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: colors.primary,
+                                          ),
+                                        ),
+                                      );
+                                    }
 
-                      final article = state.articles[index];
-                      return TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: 1),
-                        duration: Duration(milliseconds: 300 + (index * 100)),
-                        curve: Curves.easeInOut,
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, (1 - value) * 30),
-                              child: child,
+                                    final article = filteredArticles[index];
+                                    return TweenAnimationBuilder<double>(
+                                      tween: Tween(begin: 0, end: 1),
+                                      duration: Duration(
+                                        milliseconds: 250 + (index * 75),
+                                      ),
+                                      curve: Curves.easeOut,
+                                      builder: (context, value, child) {
+                                        return Opacity(
+                                          opacity: value,
+                                          child: Transform.translate(
+                                            offset: Offset(0, (1 - value) * 20),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.only(bottom: 4.h),
+                                        child: NewsListCard(
+                                          article: article,
+                                          onTap: () {
+                                            _navigateToDetail(
+                                              context,
+                                              article.id,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  childCount:
+                                      filteredArticles.length +
+                                      (state.isLoading ? 1 : 0),
+                                ),
+                              ),
                             ),
-                          );
-                        },
-                        child: NewsListCard(
-                          article: article,
-                          onTap: () {
-                            _navigateToDetail(context, article.id);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
         );
       },
     );
@@ -227,11 +361,11 @@ class NewsDetailView extends StatelessWidget {
                     style: TextStyle(fontSize: 14.sp, color: colors.error),
                   ),
                   SizedBox(height: 16.h),
-                  ElevatedButton(
+                  AppButton(
+                    text: localizations.retry,
                     onPressed: () => getIt<NewsCubit>().loadNewsDetail(
                       state.selectedArticle?.id ?? '',
                     ),
-                    child: Text(localizations.retry),
                   ),
                 ],
               ),
@@ -242,76 +376,78 @@ class NewsDetailView extends StatelessWidget {
         final article = state.selectedArticle!;
 
         return Scaffold(
-          backgroundColor: colors.background,
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 250.h,
-                floating: false,
-                pinned: true,
-                backgroundColor: colors.background,
-                foregroundColor: colors.textPrimary,
-                automaticallyImplyLeading: false, // Remove default back button
-                flexibleSpace: FlexibleSpaceBar(
-                  background: SafeArea(
-                    top: true,
-                    bottom: false,
-                    child: NewsDetailHeader(
-                      article: article,
-                      onBackPressed: () => Navigator.pop(context),
+          body: Background(
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 250.h,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: colors.background,
+                  foregroundColor: colors.textPrimary,
+                  automaticallyImplyLeading:
+                      false, // Remove default back button
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: SafeArea(
+                      top: true,
+                      bottom: false,
+                      child: NewsDetailHeader(
+                        article: article,
+                        onBackPressed: () => Navigator.pop(context),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Meta Info
-                      NewsMetaInfo(article: article),
-                      SizedBox(height: 24.h),
-                      // Description
-                      Text(
-                        article.description,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w500,
-                          color: colors.textPrimary,
-                          height: 1.5,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                      // Content
-                      Text(
-                        article.content,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: colors.textSecondary,
-                          height: 1.6,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                      // Tags
-                      if (article.tags.isNotEmpty) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Meta Info
+                        NewsMetaInfo(article: article),
+                        SizedBox(height: 24.h),
+                        // Description
                         Text(
-                          'Tags',
+                          article.description,
                           style: TextStyle(
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: colors.textPrimary,
+                            height: 1.5,
                           ),
                         ),
-                        SizedBox(height: 12.h),
-                        NewsTags(tags: article.tags),
+                        SizedBox(height: 24.h),
+                        // Content
+                        Text(
+                          article.content,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: colors.textSecondary,
+                            height: 1.6,
+                          ),
+                        ),
+                        SizedBox(height: 24.h),
+                        // Tags
+                        if (article.tags.isNotEmpty) ...[
+                          Text(
+                            'Tags',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          NewsTags(tags: article.tags),
+                        ],
+                        SizedBox(height: 32.h),
                       ],
-                      SizedBox(height: 32.h),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

@@ -4,10 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/theme_extensions.dart';
+import '../../../../core/widgets/background.dart';
+import '../../../../core/widgets/button.dart';
 import '../../../../core/widgets/ux_helpers.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../data/models/notification.dart';
 import '../../logic/cubit/notifications_cubit.dart';
+import '../widgets/notifications_widgets.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -43,27 +46,11 @@ class NotificationsView extends StatelessWidget {
       child: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: colors.background,
-            appBar: AppBar(
-              title: Text(localizations.notifications),
-              elevation: 0,
-              actions: [
-                if (context.read<NotificationsCubit>().unreadCount > 0)
-                  TextButton(
-                    onPressed: () {
-                      context.read<NotificationsCubit>().markAllAsRead();
-                      context.showSuccessSnackBar(
-                        'All notifications marked as read',
-                      );
-                    },
-                    child: Text(
-                      'Mark all read',
-                      style: TextStyle(fontSize: 12.sp, color: colors.primary),
-                    ),
-                  ),
-              ],
+            body: SafeArea(
+              child: Background(
+                child: _buildBody(context, state, colors, localizations),
+              ),
             ),
-            body: _buildBody(context, state, colors, localizations),
           );
         },
       ),
@@ -77,19 +64,7 @@ class NotificationsView extends StatelessWidget {
     AppLocalizations localizations,
   ) {
     if (state.isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            SizedBox(height: 16.h),
-            Text(
-              'Loading notifications...',
-              style: TextStyle(fontSize: 14.sp, color: colors.textSecondary),
-            ),
-          ],
-        ),
-      );
+      return const NotificationsShimmerLoading();
     }
 
     if (state.notifications.isEmpty) {
@@ -106,27 +81,64 @@ class NotificationsView extends StatelessWidget {
       onRefresh: () async {
         context.read<NotificationsCubit>().loadNotifications();
       },
-      child: ListView.builder(
-        padding: EdgeInsets.all(16.w),
-        itemCount: state.notifications.length,
-        itemBuilder: (context, index) {
-          final notification = state.notifications[index];
-          return TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: Duration(milliseconds: 300 + (index * 100)),
-            curve: Curves.easeInOut,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset((1 - value) * -50, 0),
-                  child: child,
+      child: Column(
+        children: [
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.w),
+            child: Row(
+              children: [
+                Text(
+                  localizations.notifications,
+                  style: TextStyle(fontSize: 20.sp),
                 ),
-              );
-            },
-            child: _buildNotificationItem(context, notification, colors),
-          );
-        },
+                Spacer(),
+                if (context.read<NotificationsCubit>().unreadCount > 0)
+                  SizedBox(
+                    width: 120.w,
+                    height: 60.h,
+                    child: AppButton(
+                      onPressed: () {
+                        context.read<NotificationsCubit>().markAllAsRead();
+                        context.showSuccessSnackBar(
+                          'All notifications marked as read',
+                        );
+                      },
+                      text: 'Mark all read',
+                      backgroundColor: Colors.transparent,
+                      textColor: colors.primary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: MediaQuery.of(context).size.height.h - 150.h,
+            child: ListView.builder(
+              padding: EdgeInsets.all(16.w),
+              itemCount: state.notifications.length,
+              itemBuilder: (context, index) {
+                final notification = state.notifications[index];
+                return TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: Duration(milliseconds: 300 + (index * 100)),
+                  curve: Curves.easeInOut,
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset((1 - value) * -50, 0),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _buildNotificationItem(context, notification, colors),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -151,14 +163,7 @@ class NotificationsView extends StatelessWidget {
           cancelText: 'Cancel',
         );
       },
-      background: Positioned.fill(
-        child: Container(
-          color: AppColors.error,
-          alignment: Alignment.centerRight,
-          padding: EdgeInsets.only(right: 16.w),
-          child: const Icon(Icons.delete, color: Colors.white),
-        ),
-      ),
+      background: const Icon(Icons.delete, color: Colors.white),
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(12.w),
@@ -169,8 +174,8 @@ class NotificationsView extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(8.r),
           color: notification.isRead
-              ? colors.cardBackground
-              : colors.primary.withOpacity(0.05),
+              ? Colors.white.withValues(alpha: 0.2)
+              : colors.primary.withOpacity(0.4),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

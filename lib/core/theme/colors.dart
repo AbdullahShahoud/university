@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Primary colors
   static const Color primary = Color(0xFF1380EC);
-  static const Color primaryLight = Color(0xFF4C739A);
+  static const Color primaryLight = Color(0xFF1380EC);
   static const Color primaryDark = Color(0xFF0D5BA3);
 
   // Background colors
@@ -13,7 +13,7 @@ class AppColors {
 
   // Text colors
   static const Color textPrimary = Color(0xFF0D141B);
-  static const Color textSecondary = Color(0xFF4C739A);
+  static const Color textSecondary = Color(0xFF1380EC);
   static const Color textHint = Color(0xFF9CA3AF);
 
   // Status colors
@@ -23,8 +23,8 @@ class AppColors {
   static const Color info = Color(0xFF3B82F6);
 
   // Border colors
-  static const Color border = Color(0xFFCFD8E7);
-  static const Color borderLight = Color(0xFFE7EDF3);
+  static const Color border = Color(0xFF3B82F6);
+  static const Color borderLight = Color(0xFF3B82F6);
 
   // Input colors
   static const Color inputBackground = Color(0xFFE7EDF3);

@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/widgets/background.dart';
+import '../../../../core/widgets/button.dart';
 import '../../../startup_profile/logic/cubit/startup_cubit.dart';
 import '../widgets/startup_profile_widgets.dart';
 
@@ -35,7 +37,7 @@ class _StartupProfileViewState extends State<StartupProfileView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, initialIndex: 2, vsync: this);
   }
 
   @override
@@ -53,28 +55,32 @@ class _StartupProfileViewState extends State<StartupProfileView>
         if (state.isLoading && state.startup == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Loading...')),
-            body: const Center(child: CircularProgressIndicator()),
+            body: Background(
+              child: const Center(child: CircularProgressIndicator()),
+            ),
           );
         }
 
         if (state.errorMessage != null && state.startup == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Error')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    state.errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14.sp, color: AppColors.error),
-                  ),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () => context.read<StartupCubit>().retry(),
-                    child: Text(localizations.retry),
-                  ),
-                ],
+            body: Background(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14.sp, color: AppColors.error),
+                    ),
+                    SizedBox(height: 16.h),
+                    AppButton(
+                      onPressed: () => context.read<StartupCubit>().retry(),
+                      text: localizations.retry,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -131,23 +137,17 @@ class _StartupProfileViewState extends State<StartupProfileView>
                     Padding(
                       padding: EdgeInsets.all(8.w),
                       child: Center(
-                        child: ElevatedButton(
-                          onPressed: () =>
-                              context.read<StartupCubit>().toggleFollow(),
-                          style: ElevatedButton.styleFrom(
+                        child: SizedBox(
+                          width: 120.w,
+                          child: AppButton(
+                            onPressed: () =>
+                                context.read<StartupCubit>().toggleFollow(),
+                            text: startup.isFollowing
+                                ? AppLocalizations.of(context)!.following
+                                : AppLocalizations.of(context)!.follow,
                             backgroundColor: startup.isFollowing
                                 ? AppColors.textSecondary
                                 : AppColors.primary,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 8.h,
-                            ),
-                          ),
-                          child: Text(
-                            startup.isFollowing
-                                ? AppLocalizations.of(context)!.following
-                                : AppLocalizations.of(context)!.follow,
-                            style: TextStyle(fontSize: 12.sp),
                           ),
                         ),
                       ),

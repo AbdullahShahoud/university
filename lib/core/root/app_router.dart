@@ -22,10 +22,10 @@ class AppRouter {
   /// Get all screens in the correct navigation order
   static List<Widget> getScreens() {
     return [
-      const ExploreScreen(),
-      // const StartupProfileScreen(startupId: 'placeholder'),
       const NewsScreen(),
       const FavoritesScreen(),
+      const ExploreScreen(),
+
       const NotificationsScreen(),
       const ProfileScreen(),
     ];
@@ -37,29 +37,35 @@ class AppRouter {
 
     return [
       NavigationItem(
-        icon: Icons.search_outlined,
-        activeIcon: Icons.search,
-        label: localizations.explore,
-      ),
-      NavigationItem(
         icon: Icons.article_outlined,
         activeIcon: Icons.article,
+
         label: localizations.news,
+        color: Colors.white,
       ),
       NavigationItem(
         icon: Icons.person_add_outlined,
         activeIcon: Icons.person_add,
         label: localizations.followings,
+        color: Colors.white,
+      ),
+      NavigationItem(
+        icon: Icons.search_outlined,
+        activeIcon: Icons.search,
+        label: localizations.explore,
+        color: Colors.white,
       ),
       NavigationItem(
         icon: Icons.notifications_none,
         activeIcon: Icons.notifications,
         label: localizations.notifications,
+        color: Colors.white,
       ),
       NavigationItem(
         icon: Icons.person_outline,
         activeIcon: Icons.person,
         label: localizations.profile,
+        color: Colors.white,
       ),
     ];
   }
@@ -69,33 +75,41 @@ class AppRouter {
   static List<BottomNavigationBarItem> getBottomNavigationBarItems(
     BuildContext context,
   ) {
-    final localizations = AppLocalizations.of(context)!;
+    // final localizations = AppLocalizations.of(context)!;
 
     return [
       BottomNavigationBarItem(
-        icon: const Icon(Icons.search_outlined),
-        activeIcon: const Icon(Icons.search),
-        label: localizations.explore,
+        icon: const Icon(Icons.search_outlined, color: Colors.white),
+        activeIcon: const Icon(Icons.search, color: Colors.white),
+        backgroundColor: Colors.transparent,
+        // label: localizations.explore,
       ),
       BottomNavigationBarItem(
-        icon: const Icon(Icons.article_outlined),
-        activeIcon: const Icon(Icons.article),
-        label: localizations.news,
+        icon: const Icon(Icons.article_outlined, color: Colors.white),
+        activeIcon: const Icon(Icons.article, color: Colors.white),
+        backgroundColor: Colors.transparent,
+
+        // label: localizations.news,
       ),
       BottomNavigationBarItem(
-        icon: const Icon(Icons.person_add_outlined),
-        activeIcon: const Icon(Icons.person_add),
-        label: localizations.followings,
+        icon: const Icon(Icons.person_add_outlined, color: Colors.white),
+        activeIcon: const Icon(Icons.person_add, color: Colors.white),
+        // label: localizations.followings,
+        backgroundColor: Colors.transparent,
       ),
       BottomNavigationBarItem(
-        icon: const Icon(Icons.notifications_none),
-        activeIcon: const Icon(Icons.notifications),
-        label: localizations.notifications,
+        icon: const Icon(Icons.notifications_none, color: Colors.white),
+        activeIcon: const Icon(Icons.notifications, color: Colors.white),
+        backgroundColor: Colors.transparent,
+
+        // label: localizations.notifications,
       ),
       BottomNavigationBarItem(
-        icon: const Icon(Icons.person_outline),
-        activeIcon: const Icon(Icons.person),
-        label: localizations.profile,
+        icon: const Icon(Icons.person_outline, color: Colors.white),
+        activeIcon: const Icon(Icons.person, color: Colors.white),
+        backgroundColor: Colors.transparent,
+
+        // label: localizations.profile,
       ),
     ];
   }

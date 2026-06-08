@@ -1,0 +1,43 @@
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+import 'api_constants.dart';
+
+part 'api_service.g.dart';
+
+@RestApi(baseUrl: ApiConstants.baseUrl)
+abstract class ApiService {
+  factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
+
+  // ========================== Device ==========================
+
+  @POST(ApiConstants.registerDevice)
+  Future<Map<String, dynamic>> registerDevice(
+    @Body() Map<String, dynamic> deviceRegisterRequest,
+  );
+
+  @POST(ApiConstants.verifyDeviceToken)
+  Future<Map<String, dynamic>> verifyDeviceToken(
+    @Body() Map<String, dynamic> request,
+  );
+
+  // ========================== Authentication ==========================
+
+  @GET(ApiConstants.serverTime)
+  Future<Map<String, dynamic>> getServerTime();
+
+  @POST(ApiConstants.loginUser)
+  Future<Map<String, dynamic>> login(@Body() Map<String, dynamic> loginRequest);
+
+  @POST(ApiConstants.registerUser)
+  Future<Map<String, dynamic>> register(
+    @Body() Map<String, dynamic> registerRequest,
+  );
+
+  @POST(ApiConstants.refreshToken)
+  Future<Map<String, dynamic>> refreshToken(
+    @Body() Map<String, dynamic> refreshTokenRequest,
+  );
+
+  @POST(ApiConstants.logoutUser)
+  Future<Map<String, dynamic>> logout(@Body() Map<String, dynamic> request);
+}

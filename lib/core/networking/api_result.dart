@@ -1,11 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../error/api_error_model.dart';
 
 part 'api_result.freezed.dart';
-part 'api_result.g.dart';
 
 /// Result wrapper for API calls
 ///
-/// Represents either a successful response with data or an error
+/// Represents either a successful response with data or a failure.
 ///
 /// Usage:
 /// ```dart
@@ -16,29 +16,14 @@ part 'api_result.g.dart';
 ///
 /// result.when(
 ///   success: (data) => print('Success: $data'),
-///   error: (message) => print('Error: $message'),
+///   failure: (error) => print('Error: ${error.message}'),
 /// );
 /// ```
-@freezed
-class ApiResult<T> with _$ApiResult<T> {
-  /// Successful API response with data
+@Freezed()
+abstract class ApiResult<T> with _$ApiResult<T> {
   const factory ApiResult.success(T data) = Success<T>;
+  const factory ApiResult.failure(ApiErrorModel error) = Failure<T>;
 
-  /// Failed API response with error message
-  const factory ApiResult.error(String message) = Error<T>;
-}
-
-/// API Error Details Model
-///
-/// Used to provide structured error information from API responses
-@freezed
-class ApiError with _$ApiError {
-  const factory ApiError({
-    required String message,
-    @Default(500) int statusCode,
-    String? details,
-  }) = _ApiError;
-
-  factory ApiError.fromJson(Map<String, dynamic> json) =>
-      _$ApiErrorFromJson(json);
+  static ApiResult<T> error<T>(String message) =>
+      ApiResult.failure(ApiErrorModel(message: message));
 }

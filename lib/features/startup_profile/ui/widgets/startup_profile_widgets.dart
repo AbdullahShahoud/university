@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/widgets/button.dart';
 import '../../data/models/startup_details.dart';
 
 // Cover Header Widget
@@ -97,25 +98,23 @@ class StartupCoverHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 8.h),
-                    ElevatedButton(
-                      onPressed: onFollowPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isFollowing
-                            ? AppColors.textSecondary
-                            : AppColors.primary,
-                        minimumSize: Size(100.w, 36.h),
-                      ),
-                      child: Builder(
-                        builder: (context) {
-                          final localizations = AppLocalizations.of(context)!;
-                          return Text(
-                            isFollowing
+                    Builder(
+                      builder: (context) {
+                        final localizations = AppLocalizations.of(context)!;
+                        return SizedBox(
+                          width: 100.w,
+                          height: 36.h,
+                          child: AppButton(
+                            onPressed: onFollowPressed,
+                            text: isFollowing
                                 ? localizations.following
                                 : localizations.follow,
-                            style: TextStyle(fontSize: 12.sp),
-                          );
-                        },
-                      ),
+                            backgroundColor: isFollowing
+                                ? AppColors.textSecondary
+                                : AppColors.primary,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

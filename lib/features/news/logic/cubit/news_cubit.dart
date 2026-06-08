@@ -40,8 +40,8 @@ class NewsCubit extends Cubit<NewsState> {
           ),
         );
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isLoading: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isLoading: false));
       },
     );
   }

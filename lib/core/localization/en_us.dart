@@ -51,6 +51,8 @@ class EnUs {
   static const String email = 'Email';
   static const String message = 'Message';
   static const String sendMessage = 'Send Message';
+  static const String founded = 'Founded';
+  static const String phone = 'Phone';
 
   // News
   static const String newsTitle = 'News';

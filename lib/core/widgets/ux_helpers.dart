@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/colors.dart';
 import '../theme/theme_extensions.dart';
+import 'button.dart';
 
 /// UX Helper Extensions for snackbars and dialogs
 extension UXHelpers on BuildContext {
@@ -120,7 +121,7 @@ extension UXHelpers on BuildContext {
             onPressed: () => Navigator.pop(this, false),
             child: Text(cancelText),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () => Navigator.pop(this, true),
             child: Text(confirmText),
           ),
@@ -155,34 +156,14 @@ class LoadingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDisabled = isLoading || !isEnabled;
 
-    return ElevatedButton(
+    return AppButton(
+      text: label,
       onPressed: isDisabled ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor ?? AppColors.primary,
-        disabledBackgroundColor: AppColors.inputBackground,
-        padding:
-            padding ?? EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-        minimumSize: Size(double.infinity, 44.h),
-      ),
-      child: isLoading
-          ? SizedBox(
-              height: 20.h,
-              width: 20.w,
-              child: const CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : Text(
-              label,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: isDisabled
-                    ? AppColors.textSecondary
-                    : (textColor ?? Colors.white),
-              ),
-            ),
+      isLoading: isLoading,
+      backgroundColor: backgroundColor ?? AppColors.primary,
+      textColor: isDisabled
+          ? AppColors.textSecondary
+          : (textColor ?? Colors.white),
     );
   }
 }
@@ -294,7 +275,7 @@ class EmptyStateWidget extends StatelessWidget {
             ],
             if (onAction != null && actionLabel != null) ...[
               SizedBox(height: 24.h),
-              ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
+              AppButton(onPressed: onAction, text: actionLabel!),
             ],
           ],
         ),
@@ -344,10 +325,10 @@ class ErrorStateWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
-            ElevatedButton.icon(
-              onPressed: onRetry,
+            AppButton(
+              text: 'Retry',
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              onPressed: onRetry,
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import '../networking/dio_factory.dart';
 
 import '../../features/explore/data/repo/explore_repository.dart';
 import '../../features/explore/logic/cubit/explore_cubit.dart';
@@ -12,6 +13,10 @@ import '../../features/notifications/logic/cubit/notifications_cubit.dart';
 import '../../features/profile/logic/cubit/profile_cubit.dart';
 import '../../features/startup_profile/data/repo/startup_repository.dart';
 import '../../features/startup_profile/logic/cubit/startup_cubit.dart';
+import '../../features/auth/data/repo/auth_repository.dart';
+import '../../features/auth/logic/cubit/auth_cubit.dart';
+import '../../features/hub/data/repo/hub_repository.dart';
+import '../../features/hub/logic/cubit/hub_cubit.dart';
 import '../../core/root/navigation_cubit.dart';
 
 /// Service Locator - GetIt dependency injection setup
@@ -20,15 +25,8 @@ final getIt = GetIt.instance;
 /// Initialize all dependencies
 Future<void> setupServiceLocator() async {
   // Register HTTP client
-  getIt.registerSingleton<Dio>(
-    Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
-      ),
-    ),
-  );
+  // Use centralized DioFactory to get configured Dio (baseUrl + interceptors)
+  getIt.registerSingleton<Dio>(DioFactory.createDio());
 
   // Register Repositories
   _registerRepositories();
@@ -61,6 +59,15 @@ void _registerRepositories() {
   getIt.registerSingleton<FavoritesRepository>(
     FavoritesRepositoryImpl(getIt<Dio>()),
   );
+
+  // Auth Repository
+  getIt.registerSingleton<AuthRepository>(AuthRepositoryImpl(getIt<Dio>()));
+
+  // Hub Repository
+  getIt.registerSingleton<HubRepository>(HubRepositoryImpl(getIt<Dio>()));
+
+  // Hub Cubit
+  getIt.registerSingleton<HubCubit>(HubCubit(getIt<HubRepository>()));
 }
 
 /// Register all cubits
@@ -76,9 +83,9 @@ void _registerCubits() {
     ExploreCubit(getIt<ExploreRepository>()),
   );
 
-  // Startup Cubit (Singleton)
-  getIt.registerSingleton<StartupCubit>(
-    StartupCubit(getIt<StartupRepository>()),
+  // Startup Cubit (Factory - new instance each time)
+  getIt.registerFactory<StartupCubit>(
+    () => StartupCubit(getIt<StartupRepository>()),
   );
 
   // News Cubit (Singleton)
@@ -93,6 +100,11 @@ void _registerCubits() {
   getIt.registerSingleton<FavoritesCubit>(
     FavoritesCubit(getIt<FavoritesRepository>()),
   );
+
+  // Auth Cubit (Singleton)
+  getIt.registerSingleton<AuthCubit>(
+    AuthCubit(authRepository: getIt<AuthRepository>()),
+  );
 }
 
 /// Helper to access repositories from anywhere
@@ -103,12 +115,16 @@ class RepositoryLocator {
   static NotificationsRepository get notifications =>
       getIt<NotificationsRepository>();
   static FavoritesRepository get favorites => getIt<FavoritesRepository>();
+  static AuthRepository get auth => getIt<AuthRepository>();
+  static HubRepository get hub => getIt<HubRepository>();
+  static HubCubit get hubCubit => getIt<HubCubit>();
 }
 
 /// Helper to access cubits from anywhere
 class CubitLocator {
   static NavigationCubit get navigation => getIt<NavigationCubit>();
   static ProfileCubit get profile => getIt<ProfileCubit>();
+  static AuthCubit get auth => getIt<AuthCubit>();
   static ExploreCubit get explore => getIt<ExploreCubit>();
   static StartupCubit get startup => getIt<StartupCubit>();
   static NewsCubit get news => getIt<NewsCubit>();

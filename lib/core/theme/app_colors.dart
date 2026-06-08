@@ -8,12 +8,12 @@ class AppColors {
 
   // ======== PRIMARY COLORS ========
   static const Color primary = Color(0xFF1380EC);
-  static const Color primaryLight = Color(0xFF4C739A);
+  static const Color primaryLight = Color(0xFF1380EC);
   static const Color primaryDark = Color(0xFF0D5BA3);
 
   // ======== BACKGROUND COLORS ========
   static const Color background = Color(0xFFFEFEFE);
-  static const Color surface = Color(0xFFF8F9FA);
+  static const Color surface = Color.fromARGB(255, 210, 232, 255);
   static const Color cardBackground = Color(0xFFFFFFFF);
 
   // ======== TEXT COLORS ========
@@ -29,9 +29,9 @@ class AppColors {
   static const Color info = Color(0xFF3B82F6);
 
   // ======== BORDER COLORS ========
-  static const Color border = Color(0xFFCFD8E7);
-  static const Color borderLight = Color(0xFFE7EDF3);
-  static const Color borderDark = Color(0xFFB0BCC6);
+  static const Color border = Color(0xFF3B82F6);
+  static const Color borderLight = Color(0xFF3B82F6);
+  static const Color borderDark = Color(0xFF3B82F6);
 
   // ======== INPUT COLORS ========
   static const Color inputBackground = Color(0xFFE7EDF3);

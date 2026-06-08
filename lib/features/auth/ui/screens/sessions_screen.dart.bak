@@ -1,0 +1,244 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/theme/colors.dart';
+import '../../logic/cubit/auth_cubit.dart';
+
+class SessionsScreen extends StatelessWidget {
+  final String token;
+
+  const SessionsScreen({
+    super.key,
+    required this.token,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SessionsView(token: token);
+  }
+}
+
+class SessionsView extends StatefulWidget {
+  final String token;
+
+  const SessionsView({
+    super.key,
+    required this.token,
+  });
+
+  @override
+  State<SessionsView> createState() => _SessionsViewState();
+}
+
+class _SessionsViewState extends State<SessionsView> {
+  @override
+  void initState() {
+    super.initState();
+    // Load sessions when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<AuthCubit>().getSessions(token: widget.token);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الأجهزة النشطة'),
+        elevation: 0,
+        centerTitle: true,
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Text('تسجيل الخروج من جميع الأجهزة'),
+                onTap: () {
+                  _showLogoutAllDialog(context);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) {
+          // Simple state checking - will work after freezed generation
+          final stateString = state.toString();
+
+          if (stateString.contains('SessionsLoaded')) {
+            final sessions = (state as dynamic).sessions as List<Map<String, dynamic>>;
+            if (sessions.isEmpty) {
+              return Center(
+                child: Text(
+                  'لا توجد جلسات نشطة',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: EdgeInsets.all(16.w),
+              itemCount: sessions.length,
+              itemBuilder: (context, index) {
+                final session = sessions[index];
+                return _SessionCard(
+                  session: session,
+                  token: widget.token,
+                );
+              },
+            );
+          } else if (stateString.contains('Loading')) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (stateString.contains('Error')) {
+            final message = (state as dynamic).message as String;
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(message),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthCubit>().getSessions(token: widget.token);
+                    },
+                    child: const Text('أعد المحاولة'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  void _showLogoutAllDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تسجيل الخروج من جميع الأجهزة'),
+        content: const Text(
+          'هل أنت متأكد أنك تريد تسجيل الخروج من جميع أجهزتك؟\nستحتاج إلى تسجيل الدخول مرة أخرى.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<AuthCubit>().logoutAll(token: widget.token);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('تسجيل الخروج'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SessionCard extends StatelessWidget {
+  final Map<String, dynamic> session;
+  final String token;
+
+  const _SessionCard({
+    required this.session,
+    required this.token,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 12.h),
+      child: Padding(
+        padding: EdgeInsets.all(12.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session['deviceName'] ?? 'جهاز غير معروف',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        session['userAgent'] ?? '',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    context.read<AuthCubit>().deleteSession(
+                      token: token,
+                      sessionId: session['id'] ?? 0,
+                    );
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'آخر نشاط: ${session['lastActivity'] ?? 'الآن'}',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Text(
+                    'نشط',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

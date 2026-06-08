@@ -122,7 +122,7 @@ class SuccessFeedback extends StatelessWidget {
     VoidCallback? onComplete,
   }) {
     final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
+    late final OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(context).padding.top + 50,
@@ -138,9 +138,7 @@ class SuccessFeedback extends StatelessWidget {
             textColor: textColor,
             duration: duration,
             onComplete: () {
-              if (overlayEntry.mounted) {
-                overlayEntry.remove();
-              }
+              overlayEntry.remove();
               onComplete?.call();
             },
           ),

@@ -28,8 +28,8 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       success: (favorites) {
         emit(state.copyWith(favorites: favorites, isLoading: false));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error, isLoading: false));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message, isLoading: false));
       },
     );
   }
@@ -44,8 +44,8 @@ class FavoritesCubit extends Cubit<FavoritesState> {
             .toList();
         emit(state.copyWith(favorites: updated));
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message));
       },
     );
   }
@@ -57,8 +57,8 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       success: (_) {
         loadFavorites();
       },
-      error: (error) {
-        emit(state.copyWith(errorMessage: error));
+      failure: (error) {
+        emit(state.copyWith(errorMessage: error.message));
       },
     );
   }

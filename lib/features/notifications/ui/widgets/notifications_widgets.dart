@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../data/models/notification.dart';
 
@@ -197,6 +198,34 @@ class NewsCardWidget extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class NotificationsShimmerLoading extends StatelessWidget {
+  const NotificationsShimmerLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Shimmer.fromColors(
+      baseColor: Color.fromARGB(169, 210, 232, 255),
+      highlightColor: Color.fromARGB(255, 210, 232, 255),
+      child: ListView.builder(
+        padding: EdgeInsets.all(16.w),
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.symmetric(vertical: 8.h),
+            height: 80.h,
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          );
+        },
       ),
     );
   }

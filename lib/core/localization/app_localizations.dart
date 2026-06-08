@@ -120,6 +120,10 @@ class AppLocalizations {
       _localizedValues[locale.languageCode]?['message'] ?? EnUs.message;
   String get sendMessage =>
       _localizedValues[locale.languageCode]?['sendMessage'] ?? EnUs.sendMessage;
+  String get founded =>
+      _localizedValues[locale.languageCode]?['founded'] ?? EnUs.founded;
+  String get phone =>
+      _localizedValues[locale.languageCode]?['phone'] ?? EnUs.phone;
 
   // News
   String get newsTitle =>
@@ -257,6 +261,8 @@ class AppLocalizations {
       'email': EnUs.email,
       'message': EnUs.message,
       'sendMessage': EnUs.sendMessage,
+      'founded': EnUs.founded,
+      'phone': EnUs.phone,
 
       // News
       'newsTitle': EnUs.newsTitle,
@@ -353,6 +359,8 @@ class AppLocalizations {
       'email': ArSy.email,
       'message': ArSy.message,
       'sendMessage': ArSy.sendMessage,
+      'founded': ArSy.founded,
+      'phone': ArSy.phone,
 
       // News
       'newsTitle': ArSy.newsTitle,

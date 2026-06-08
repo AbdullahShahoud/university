@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// A shake animation widget for error states and validation feedback.
@@ -72,8 +72,8 @@ class _ShakeWidgetState extends State<ShakeWidget>
   }
 
   double _getShakeOffset(double animationValue) {
-    final progress = animationValue * widget.shakeCount * 2 * pi;
-    return widget.shakeOffset * (sin(progress) * (1 - animationValue));
+    final progress = animationValue * widget.shakeCount * 2 * 3.14159;
+    return widget.shakeOffset * (math.sin(progress) * (1 - animationValue));
   }
 
   @override
@@ -309,8 +309,8 @@ class _ErrorShakeFieldState extends State<ErrorShakeField>
   double _getShakeOffset(double animationValue) {
     const shakeCount = 3;
     const shakeOffset = 6.0;
-    final progress = animationValue * shakeCount * 2 * pi;
-    return shakeOffset * (sin(progress) * (1 - animationValue));
+    final progress = animationValue * shakeCount * 2 * 3.14159;
+    return shakeOffset * (math.sin(progress) * (1 - animationValue));
   }
 
   @override

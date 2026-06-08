@@ -8,7 +8,7 @@ part 'navigation_cubit.freezed.dart';
 /// Manages the current bottom navigation tab index
 @freezed
 class NavigationState with _$NavigationState {
-  const factory NavigationState({@Default(0) int currentIndex}) =
+  const factory NavigationState({@Default(2) int currentIndex}) =
       _NavigationState;
 }
 
@@ -27,7 +27,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   }
 
   /// Get current tab index
-  int get currentIndex => state.currentIndex;
+  int get currentIndex => 2;
 
   /// Check if a specific tab is currently selected
   bool isTabSelected(int index) => state.currentIndex == index;

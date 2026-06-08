@@ -1,12 +1,14 @@
 import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
+import 'auth_interceptor.dart';
+import 'api_constants.dart';
+import 'token_storage.dart';
 
 /// DioFactory
 ///
 /// Factory class responsible for creating and configuring Dio instance with
 /// centralized configuration management
 class DioFactory {
-  static const String _baseUrl = 'https://api.example.com';
   static const int _connectTimeout = 30;
   static const int _receiveTimeout = 30;
   static const int _sendTimeout = 30;
@@ -19,7 +21,7 @@ class DioFactory {
   static Dio createDio({String? baseUrl}) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? _baseUrl,
+        baseUrl: baseUrl ?? ApiConstants.baseUrl,
         connectTimeout: const Duration(seconds: _connectTimeout),
         receiveTimeout: const Duration(seconds: _receiveTimeout),
         sendTimeout: const Duration(seconds: _sendTimeout),
@@ -28,11 +30,11 @@ class DioFactory {
       ),
     );
 
-    // Add interceptors
+    // Add interceptors (Auth first so it can attach tokens)
     dio.interceptors.addAll([
+      AuthInterceptor(TokenStorage()),
       LoggingInterceptor(),
       // TODO: Add as needed
-      // - AuthInterceptor()
       // - RetryInterceptor()
       // - ErrorInterceptor()
     ]);
